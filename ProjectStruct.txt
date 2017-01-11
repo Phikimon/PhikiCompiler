@@ -1,0 +1,59 @@
+Source
+├── Assembler
+│   ├── Assembler.cpp
+│   ├── Assembler.hpp
+│   ├── Labels.cpp
+│   └── Labels.hpp
+├── Char_bufs
+│   ├── Char_buffers.cpp
+│   └── Char_buffers.hpp
+├── common.cpp
+├── common.hpp
+├── Compiler_unit_test
+│   ├── Compiler_unit_test.cpp
+│   ├── Compiler_unit_test.hpp
+│   └── Compiler_unit_test.o
+├── Lexical_analyzer
+│   ├── Lexical_analyzer.cpp
+│   ├── Lexical_analyzer.hpp
+│   └── Lexical_analyzer.o
+├── Lists
+│   ├── Language_keywords_and_types_enum.hpp
+│   ├── Language_keywords.hpp
+│   ├── Processor_cmd_list.h
+│   └── ut_compiler.hpp
+├── main.cpp
+├── main.o
+├── Processor
+│   ├── processor.cpp
+│   └── processor.hpp
+├── Semantical_analyzer
+│   ├── Semantical_analyzer.cpp
+│   ├── Semantical_analyzer.hpp
+│   └── Semantical_analyzer.o
+├── Source transliteration
+│   └── Transliterate.py
+├── Stack
+│   ├── stack.cpp
+│   └── stack.hpp
+├── Syntax_analyzer
+│   ├── Recursive_descent.cpp
+│   ├── Recursive_descent.hpp
+│   ├── Recursive_descent.o
+│   └── Syntax_declaration.hpp
+├── Trees
+│   ├── Trees.cpp
+│   ├── Trees.hpp
+│   └── Trees.o
+└── UT_COMPILER
+    ├── Conditionals.holy
+    ├── EmptyMain.holy
+    ├── Factorial.holy
+    ├── Function_Call.holy
+    ├── Loops.holy
+    ├── MultipleFunctions.holy
+    ├── Recursive.holy
+    ├── Series.holy
+    ├── Square_Lite.holy
+    └── Zhest.holy
+

@@ -1,0 +1,6 @@
+INR %1 $-3.23
+IN %2
+JLE %1 %2 $END
+OUT $-0.666
+END:
+NOP

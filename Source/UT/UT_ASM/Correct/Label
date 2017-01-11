@@ -1,0 +1,23 @@
+JMP $start;
+
+OUT $666 ;you won't see it
+
+start:
+
+IN %0
+
+loop:
+
+ADD %0 %0 $1; %0+=1
+
+JE %0 $20 $loop
+
+OUT %0
+
+JMP $exit
+
+OUT $777
+
+exit:
+
+NOP

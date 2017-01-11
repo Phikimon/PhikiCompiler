@@ -1,0 +1,46 @@
+
+;FUNCTION Novji_Zavet
+Novji_Zavet:
+
+  ;Pop function arguments
+
+  ;Function itself
+PUSH $0 
+
+POP %0
+PUSH $2 
+
+POP %1
+
+; Calculating condition for loop
+
+LOOPBEGIN0:
+PUSH %0 ; Satana
+PUSH %1 ; Bog
+LLST
+
+POP %2
+
+JE %2 $0 $LOOPEND0
+
+ OUT  $6 
+PUSH %0 ; Satana
+PUSH $1 
+ADDST
+
+POP %0
+
+JMP $LOOPBEGIN0
+
+LOOPEND0:
+ ;return
+PUSH %0 ; Satana
+
+POP %3
+
+RET %3
+ ;end of return
+
+
+RET $0
+;END OF FUNCTION Novji_Zavet

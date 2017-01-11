@@ -1,0 +1,6 @@
+IN %3 		
+123:
+		OUT 	%3;  13.123
+ADD %0 %3 $123.1; OUT %3
+OUT %0; dsakldnka
+JMP $123 ; 

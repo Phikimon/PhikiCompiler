@@ -1,0 +1,5 @@
+PUSH $12.5
+PUSH $-1
+MULST
+POP %0
+OUT %0 

@@ -1,0 +1,11 @@
+Compiler_unit_test to 2 files: compiler itself and function that uses unit tests as an compiler input
+
+Compiler options
+
+Replace 'HOLY' everywhere with 'LANG'
+
+//keywords from compile-time to real-time
+
+Change command size for assembler
+
+Assembler - custom commands

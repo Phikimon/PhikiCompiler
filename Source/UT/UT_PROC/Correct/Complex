@@ -1,0 +1,27 @@
+IN %1	  ; %1 = <value from keyboard>
+
+CALL $FOR
+
+ JMP $FINISH
+
+FOR:
+
+ INR %0 $0 ; %0 = 0;
+
+ FORLOOP:
+
+  ADD %0 %0 $1
+
+ JL %0 %1 $FORLOOP
+
+RET
+
+FINISH:
+
+OUT $111
+
+NOP
+
+
+
+
