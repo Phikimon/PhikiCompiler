@@ -1,4 +1,10 @@
-#include "Common/Common.hpp"
+#include "Common.hpp"
+#include <ctime> 
+#include <math.h>
+
+extern const char POISON_CHAR     = (char)0xDE;
+extern const int  POISON_INT      = (int)0xDEADBEEF;
+extern const size_t POISON_SIZE_T = 0xDEADBEEFDEADBEEF;
 
 const char* _ERR_ST[-ERR_QT] =
 {
@@ -26,22 +32,21 @@ const char* ERR_ST(ERRORS_T ERR)
     return _ERR_ST[-ERR];
 };
 
-unsigned myRandom(unsigned seed)
+size_t myRandom(int seed)
 {
-    return seed*0xC0CAC01A-0xF00DCAFE; //I was hungry =(
+    return ((size_t)seed*0xC0CAC01A - 0xF00DCAFE) + 
+          (((size_t)seed*0xDEADF00D - 0xABCDEFEF) << 8 * 4);
+            //I was hungry =(
 };
 
-unsigned genSeed()
+int genSeed()
 {
-    unsigned seed = 0;
-    unsigned *ptr = (unsigned*)malloc( sizeof(*ptr) );
-    srand((*ptr + (unsigned)rand()));
-    seed = (unsigned)rand();
-    free(ptr);
-    return seed;
-}
+    int seed = ((int)clock() * rand());
+    srand((unsigned)seed * (unsigned)((size_t)&seed & 0xFFFFFFFF));
+    return rand() * seed;
+};
 
 bool D_EQ(double a, double y)
 {
     return fabsl(a - y) <= MACH_EPS;
-}
+};

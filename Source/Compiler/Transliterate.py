@@ -19,18 +19,6 @@ class Translit:
             newText = newText.replace(self.kirilica[key],self.translit[key])
         return newText
        
-    def toKirilica(self,text):
-        newText = text;
-        for key in xrange(len(self.translit)) :
-            if (self.translit[key] == ''): continue
-            newText = newText.replace(self.translit[key],self.kirilica[key])
-        return newText
-   
-    def showReplacements(self):
-        for i in xrange(len(self.translit)) :
-            print self.kirilica[i] + ' = ' + self.translit[i]
-   
-       
 f = open(sys.argv[1])
 transtiter = Translit()
 
@@ -40,7 +28,5 @@ while True:
     if len(line) == 0: # Нулевая длина обозначает конец файла (EOF)
         break
     print transtiter.toTranslit(line)
-
-f.close()
 
 f.close()

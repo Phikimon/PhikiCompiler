@@ -1,0 +1,21 @@
+#!/bin/bash
+source execonfig.cfg
+
+SRCFILENAME=${SRCPATH##*$'/'}
+
+rm ./temp -r
+mkdir ./temp/
+
+#Transliterate russian chars
+python ./Source/Compiler/Transliterate.py $SRCPATH > ./temp/$SRCFILENAME
+python ./Source/Compiler/Transliterate.py $LANGUAGECONFIGFILE > mylangconfig.cfg
+
+if [ -z $OUTPUTFILENAME ]; then
+    ./Compiler $COMPILEROPTIONS -i ./temp/$SRCFILENAME
+else
+    ./Compiler $COMPILEROPTIONS -i ./temp/$SRCFILENAME -o $OUTPUTFILENAME
+fi
+
+rm mylangconfig.cfg
+
+./Processor $PROCESSOROPTIONS -i ./temp/*.hex

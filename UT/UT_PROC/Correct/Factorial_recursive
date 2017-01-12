@@ -1,0 +1,45 @@
+;PROGRAM 'FACTORIAL RECURSIVE'
+
+; #define N %0
+; #define counter %1
+; #define factorial %2
+
+		   ;  void main()
+		   ;  {
+IN %0              ;      scanf("%lu", &N);
+		   ;
+		   ;	  //Initialize variables
+INR %1 $0	   ;      long unsigned counter = 0;
+INR %2 $1          ;	  long unsigned factorial = 0;
+		   ;
+CALL $FACTORIAL    ; 	  fact(&factorial, &counter)
+		   ;
+OUT %2		   ;      printf("%lu", factorial);
+		   ;
+		   ;	  //Clear variables after use
+INR %1 $0          ;      counter = 0;
+INR %2 $0          ;      factorial = 0;
+JMP $END           ;  }
+
+		   ; //Puts factorial of %0 in %2
+FACTORIAL:         ; void fact(long unsigned* N, long unsigned* counter)
+		   ; {
+   ADD %1 %1 $1	   ;         *counter += 1;
+ 		   ;
+   MUL %2 %2 %1    ;         *N *= *counter;
+		   ;
+ JGE %1 %0 $return ;	     if (*counter >= *N) goto ret;
+ 		   ;
+CALL $FACTORIAL    ;         fact(N, counter);
+		   ;
+return:		   ;	     ret:
+RET		   ;         return;
+		   ; };
+
+;Construction to finish program
+
+END:
+
+NOP
+
+

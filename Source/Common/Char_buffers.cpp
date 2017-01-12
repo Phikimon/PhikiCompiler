@@ -1,4 +1,7 @@
 #include "Char_buffers.hpp"
+#include "assert.h"
+#include "string.h"
+#include "ctype.h"
 
 /**
  Compares two buffers. Returns if they are similar.
@@ -9,7 +12,7 @@ bool bufcmp(charBuf_t* tbuf1, charBuf_t* tbuf2)
 
     if ((tbuf1->Size == tbuf2->Size) || (tbuf1->sizeFilled == tbuf2->sizeFilled))
     {
-        for (unsigned int i = 0; i < tbuf1->Size; i++)
+        for (size_t i = 0; i < tbuf1->Size; i++)
         {
             if (tbuf1->buf[i] != tbuf2->buf[i])
                 return 0;
@@ -20,7 +23,6 @@ bool bufcmp(charBuf_t* tbuf1, charBuf_t* tbuf2)
     };
     return 1;
 }
-
 
 /**
  Divides buffer to strings
@@ -52,7 +54,7 @@ int strDiv(charBuf_t *txt)
 
     //Find strings' pointers
     slider = txt->buf;
-    for (unsigned int i = 0; i < txt->strQuant; i++)
+    for (size_t i = 0; i < txt->strQuant; i++)
     {
         (txt->strings[i]).str = slider;
         slider += ( (txt->strings[i]).len = (unsigned)strlen(slider) ) + 1;
@@ -77,7 +79,7 @@ int reallocBuf(charBuf_t *txt)
     assert(txt->buf);
 
     char *oldbuf;
-    if ((oldbuf = (char*)realloc(txt->buf, txt->Size * 2)) == NULL) throw ERR_ALLOC;
+    if ((oldbuf = (char*)realloc(txt->buf, txt->Size * 2)) == NULL) myThrow(ERR_ALLOC);
     txt->buf = oldbuf;
 
     //Initialize memory
@@ -100,9 +102,9 @@ void strcpyBuf(charBuf_t *dest, char *src)
     assert(dest->Size);
     assert(dest->buf);
 
-    unsigned int src_len = strlen(src);
+    size_t src_len = strlen(src);
     if (dest->Size <= (dest->sizeFilled = src_len))
-        if (!realloc(dest->buf, dest->Size * 2)) throw ERR_ALLOC;
+        if (!realloc(dest->buf, dest->Size * 2)) myThrow(ERR_ALLOC);
     strcpy(dest->buf, src);
 }
 
@@ -111,17 +113,30 @@ void strcpyBuf(charBuf_t *dest, char *src)
  */
 int putcBuf(charBuf_t* txt, char c)
 {
-    assert(txt->sizeFilled); assert(txt->Size); assert(txt->buf);
-    if (txt->sizeFilled == txt->Size)
+    assert(txt->Size); assert(txt->buf);
+    if (txt->sizeFilled >= txt->Size)
         reallocBuf(txt);
     txt->buf[txt->sizeFilled++] = c;
 return 0;
 }
 
 /**
+    Puts double in the buffer
+ */
+int putdBuf(charBuf_t* txt, double d)
+{
+    assert(txt->Size); assert(txt->buf);
+    if (txt->sizeFilled + sizeof(double) >= txt->Size)
+        reallocBuf(txt);
+    *(double*)(txt->buf + txt->sizeFilled) = d;
+    txt->sizeFilled += sizeof(double);
+return 0;
+}
+
+/**
     Concatenates string and buffer
 */
-int strcatBuf(charBuf_t *dest, const char *src, const unsigned int src_len)
+int strcatBuf(charBuf_t *dest, const char *src, const size_t src_len)
 {
     assert(dest);
     assert(src);
@@ -131,10 +146,37 @@ int strcatBuf(charBuf_t *dest, const char *src, const unsigned int src_len)
     //Reallocate memory
     while (dest->Size <= (src_len + dest->sizeFilled))
     {
-    reallocBuf(dest);
+        reallocBuf(dest);
     };
 
-    for (unsigned int i = 0 ; i < src_len; i++)
+    for (size_t i = 0 ; i < src_len; i++)
+    {
+        *(dest->buf + dest->sizeFilled + i) = src[i];
+    }
+    dest->sizeFilled += src_len;
+    dest->strValid = false;
+
+    return 0;
+}
+
+/**
+    Concatenates string and buffer
+*/
+int strcatBuf(charBuf_t *dest, const char *src)
+{
+    assert(dest);
+    assert(src);
+    assert(dest->Size);
+    assert(dest->buf);
+    size_t src_len = strlen(src);
+
+    //Reallocate memory
+    while (dest->Size <= (src_len + dest->sizeFilled))
+    {
+        reallocBuf(dest);
+    };
+
+    for (size_t i = 0 ; i < src_len; i++)
     {
         *(dest->buf + dest->sizeFilled + i) = src[i];
     }
@@ -172,7 +214,7 @@ int streamToBuf(charBuf_t *txt, FILE *stream)
 {
     //Check input pointers
     assert(stream);
-    assert(((void*)txt) != ((void*)stream) ); //Who knows how stupid user is?
+    assert(txt);
     /*
     NO ASSERTS THERE. PUSSY WANTS ME TO STROKE HER!
 
@@ -181,7 +223,10 @@ int streamToBuf(charBuf_t *txt, FILE *stream)
     (")_(")
 
     */
-    txt->Size = ( fseek(stream, 0, SEEK_END), ftell(stream) + 1);
+    fseek(stream, 0, SEEK_END);
+    int temp = ftell(stream) + 1;
+    assert(temp > 0);
+    txt->Size = (size_t)(temp);
     //Allocate memory for the buffer
     ALLOC(txt->buf = ( (char *)calloc(
                      txt->Size/* = ( fseek(stream, 0, SEEK_END), ftell(stream) + 1)*/,//allocate memory for extrabyte to put '0' there
@@ -190,7 +235,7 @@ int streamToBuf(charBuf_t *txt, FILE *stream)
                  )
                ));
     txt->Size--; // size doesn't mention that extrabyte, but it remains allocated. see strDiv
-    if (txt->buf == nullptr) return ERR_ALLOC;
+    if (txt->buf == NULL) return ERR_ALLOC;
 
     assert(stream);
     fseek(stream, 0, SEEK_SET); //return cursor
@@ -198,7 +243,7 @@ int streamToBuf(charBuf_t *txt, FILE *stream)
     assert(txt->buf);
     assert(txt->Size);
     assert(stream);
-    if (fread(txt->buf, sizeof(char), txt->Size, stream) != txt->Size) throw ERR_FREAD; //fill the buffer
+    if (fread(txt->buf, sizeof(char), txt->Size, stream) != txt->Size) myThrow(ERR_FREAD); //fill the buffer
     txt->strings = NULL;
     txt->strQuant = 0;
     txt->strValid = false;
@@ -215,12 +260,12 @@ void bufdtor(charBuf_t *txt)
     assert(txt); assert(txt->buf);
     //Some poison to the 'strings'
     char *slider = NULL;
-    for (unsigned int i = 0; i < txt->strQuant; i++)
+    for (size_t i = 0; i < txt->strQuant; i++)
     {
         slider = txt->strings[i].str;
         while (*slider != '\0')
             (*slider++) = POISON_CHAR ;
-        txt->strings[i].len = POISON_INT ;
+        txt->strings[i].len = POISON_SIZE_T ;
         txt->strings[i].str = nullptr;
     }
     //And for the rest
@@ -229,8 +274,6 @@ void bufdtor(charBuf_t *txt)
     txt->strQuant = 0;
     txt->Size = 0;
     txt->strValid = false;
-    
-    free(txt);
 }
 
 /**
@@ -251,15 +294,14 @@ int bufToStream(charBuf_t *txt, FILE *stream)
 /**
   Write array of strings to stream
  */
-int bufToStream(char **text, unsigned int Size, FILE *stream)
+int bufToStream(char **text, size_t Size, FILE *stream)
 {
     //Check input pointers
     assert(text);
     assert(stream);
-    assert((void*)text != (void*)stream); //Who knows how stupid user is?
 
     //Write to the stream
-    for (unsigned int i = 0; i < Size; i++)
+    for (size_t i = 0; i < Size; i++)
     {
         fputs(text[i], stream);
     }
@@ -287,7 +329,7 @@ bool _bufOk(charBuf_t *txt, bool verbose, const char bufName[MAX_LINE_LEN])
             assert(txt->strQuant);
             assert(txt->strings);
             for (int i = 0; i < (int)txt->strQuant; i++)
-                if ( (txt->strings[i].len <  0) || (!txt->strings[i].str) )
+                if (!txt->strings[i].str)
                 {
                     strTrulyValid = false;
                     break;
@@ -295,42 +337,39 @@ bool _bufOk(charBuf_t *txt, bool verbose, const char bufName[MAX_LINE_LEN])
             assert(txt->strQuant);
         }
         //return
-        ok = (txt && txt->buf && ((!txt->strValid) || (txt->strings)) && (txt->Size >= 0) && (strTrulyValid == txt->strValid) && (txt->sizeFilled >= txt->strQuant) && (txt->sizeFilled <= txt->Size));
+        ok = (txt && txt->buf && ((!txt->strValid) || (txt->strings)) &&
+             (strTrulyValid == txt->strValid) && (txt->sizeFilled >= txt->strQuant) && (txt->sizeFilled <= txt->Size));
     }
     //Shout if neccesary
     if (verbose)
     {
         printf("\t Buffer '%s' is %s [%p] \n", bufName, (ok ? "okay" : "NOT OKAY"), (txt->buf));
         printf("\t{\n");
-        printf("\t buffSize = %lu\n", (int)txt->Size);
-        printf("\t filledSize = %lu\n", (int)txt->sizeFilled);
-        printf("\t strValid = %lu\n", txt->strValid);
+        printf("\t buffSize      = %zu\n", txt->Size);
+        printf("\t filledSize    = %zu\n", txt->sizeFilled);
+        printf("\t strValid      = %i\n",  txt->strValid);
         printf("\t strTrulyValid = %lu\n", strTrulyValid);
-        printf("\t strQuant = %lu\n", (int)txt->strQuant);
-        printf("\t There is%sstring division(%lu strings detected)[%p]:\n", ((txt->strValid) && (txt->strQuant)) ? " " : " no ", txt->strQuant,
-               ((txt->strQuant > 0) ? txt->strings->str : 0));
+        printf("\t strQuant      = %zu\n", txt->strQuant);
+        printf("\t There is%sstring division(%lu strings detected)[%p]:\n",
+               ((txt->strValid) && (txt->strQuant)) ? " " : " no ", txt->strQuant,
+               (txt->strQuant > 0) ? txt->strings->str : 0);
         // if (txt->strValid)
         {
-            /*
-            #include <conio.h>
-            printf("    Print them? Y/N\n");
-            if (_getch() == 'Y')
-             */
-            for (unsigned int i = 0; i < txt->strQuant; i++)
+            for (size_t i = 0; i < txt->strQuant; i++)
                 printf("\t [%p], len=%4i  |  \"%s\"\n", txt->strings[i].str, (int)txt->strings[i].len, txt->strings[i].str);
         }
         printf("\t Buffer[%p] content:\n\t \"%s\"\n\t ", txt->buf, txt->buf);
-        for (unsigned int chr = 0; chr < txt->Size; chr++)
+        for (size_t chr = 0; chr < txt->Size; chr++)
         {
             printf(" '%c'%s", isgraph(txt->buf[chr]) ? txt->buf[chr] : ' ', (chr == txt->sizeFilled-1) ? "|" : " ");
         }
         printf("\nCodes(0d):");
-        for (unsigned int chr = 0; chr < txt->Size; chr++)
+        for (size_t chr = 0; chr < txt->Size; chr++)
         {
             printf("%3i %s", (unsigned char)txt->buf[chr], (chr == txt->sizeFilled-1) ? "|" : " ");
         }
         printf("\nCodes(0x):");
-        for (unsigned int chr = 0; chr < txt->Size; chr++)
+        for (size_t chr = 0; chr < txt->Size; chr++)
         {
             printf("%3x %s", (unsigned char)txt->buf[chr], (chr == txt->sizeFilled-1) ? "|" : " ");
         }
@@ -342,23 +381,23 @@ bool _bufOk(charBuf_t *txt, bool verbose, const char bufName[MAX_LINE_LEN])
 /**
   prString
  */
-void _prString(char *str, unsigned int len, const char strName[MAX_LINE_LEN])
+void _prString(const char *str, size_t len, const char strName[MAX_LINE_LEN])
 {
     printf("\n     String '%s'[%p] dump:\n", strName, str);
     printf("\t{\n");
-    printf("\t String length = %lu\n", len);
+    printf("\t String length = %zu\n", len);
     printf("\t Content:\n\t \"%s\"\n\t  ", str);
-    for (unsigned int chr = 0; chr < len; chr++)
+    for (size_t chr = 0; chr < len; chr++)
     {
         printf("'%c' ", isgraph(str[chr]) ? str[chr] : ' ');
     }
     printf("\nCodes(0d):");
-    for (unsigned int chr = 0; chr < len; chr++)
+    for (size_t chr = 0; chr < len; chr++)
     {
-        printf("%3i ", (unsigned char)str[chr]);
+        printf("%3u ", (unsigned char)str[chr]);
     }
     printf("\nCodes(0x):");
-    for (unsigned int chr = 0; chr < len; chr++)
+    for (size_t chr = 0; chr < len; chr++)
     {
         printf("%3x ", (unsigned char)str[chr]);
     }

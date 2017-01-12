@@ -1,35 +1,27 @@
 #ifndef LABELS_HPP_INCLUDED
 #define LABELS_HPP_INCLUDED
 
- #include "Common/Common.hpp"
+enum { MAX_LBL_QT      = 64 };
+enum { MAX_LBL_LEN     = 64 };
 
-#define standardLabel "Philiscoolguy"
-#define MAX_CMD_LBL_LEN 64
-#define MAX_LBL_QT 64
-
-//Stores label's name and where it points to
-struct myLabel 
+class AsmLabels
 {
-    
-    char name[MAX_CMD_LBL_LEN];
-    
-    int ptr = -1;
+    public:
+        AsmLabels () {};
+        ~AsmLabels() {};
+
+        void         dump();
+        int          name2Addr(const char* name);
+        int          num2Addr(unsigned num);
+        const char*  num2Name(unsigned num);
+        void         appendLabel(const char* name, unsigned addr);
+        const char*  stdLabel();
+        int          getNum();
+    private:
+        const char STD_LABEL[sizeof("PhilIsCoolGuy")] = "PhilIsCoolGuy";
+        int        labelNum_                          = 0 ;
+        char       names_[MAX_LBL_QT][MAX_LBL_LEN]    = {};
+        int        addresses_[MAX_LBL_QT]             = {};
 };
-
-/**
- * Verificator and dump for myLabel struct
- */
- bool _labelOk(myLabel* label, bool verbose = false, const char labelName[MAX_LINE_LEN] = "name");
-#define labelOk(lbl, verb) (assert(strlen(#lbl) <= MAX_LINE_LEN), _labelOk(lbl, verb, #lbl))
-
-/**
- * Constructor for myLabel struct
- */
-void labelsctor(myLabel* labels[MAX_LBL_QT]);
-
-/**
- * Destructor for myLabel struct
- */
-void labelsdtor(myLabel* labels[MAX_LBL_QT]);
 
 #endif

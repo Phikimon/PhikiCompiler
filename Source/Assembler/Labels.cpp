@@ -1,49 +1,52 @@
 #include "Labels.hpp"
+#include <cstdio>
+#include <cstring>
+#include <cassert>
 
-bool _labelOk(myLabel* label, bool verbose, const char labelName[MAX_LINE_LEN])
+void AsmLabels::dump()
 {
-    bool ok = false;
-    try
-    {
-        ok = (! ( (label->ptr == -1) || (!label->name) ) ) && label;
-    }
-    catch (...) {ok = false;};
-
-    if (verbose) 
-    {
-        if (1)//(ok)
+    for (int i = 0; i < labelNum_; i++)
+        if ((addresses_[i] != -1) || (names_[i][0] != '\0'))
         {
-        printf("\n\tLabel \"%s\" is okay[%p]\n", labelName, &label);
-        printf("\t{\n");
-        printf("\t label->ptr  = %i[%p]\n", label->ptr, &label->ptr);
-        printf("\t label->name = %s[%p]\n", label->name, &label->name);
-        printf("\t}\n");
-        } else
-        {
-            printf("\tLabel \"%s\" is NOT okay! [%p]\n", labelName, &label);
+            printf("\n\tlabel[%02d]:\n", i);
+            printf(  "\tlabelName = %s\n",    names_[i]);
+            printf(  "\tlabel addr = %d\n",   addresses_[i]);
         }
-    }
-
-    return !ok;
 }
 
-void labelsctor(myLabel* labels[MAX_LBL_QT])
+void AsmLabels::appendLabel(const char* name, unsigned addr)
 {
-    for (int i = 0; i < MAX_LBL_QT; i++)
-    {
-        labels[i] = (myLabel*)calloc(1, sizeof(**labels));
-        labels[i]->ptr = -1;
-        strcpy(labels[i]->name, ":");
-        //_labelOk(labels[i], true, "labels[i]");
-    };
+    assert(labelNum_ <= MAX_LBL_QT);
+    strncpy(names_[labelNum_], name, MAX_LBL_LEN - 1);
+    assert((int)addr >= 0);
+    addresses_[labelNum_] = (int)addr; 
+    labelNum_++;
 };
 
-void labelsdtor(myLabel* labels[MAX_LBL_QT])
+int AsmLabels::num2Addr(unsigned num)
 {
-    for (int i = 0; i < MAX_LBL_QT; i++)
-    {
-        labels[i]->ptr = -1;
-        free(labels[i]);
-        labels[i] = NULL;
-    };
-};
+    return addresses_[num];
+}
+
+int  AsmLabels::name2Addr(const char* name)
+{
+    for (int p = 0; p < labelNum_; p++)
+        if (strncasecmp(names_[p], name, MAX_LBL_LEN - 1) == 0)
+            return addresses_[p];
+    return -1;
+}
+
+const char* AsmLabels::num2Name(unsigned num)
+{
+    return names_[num];
+}
+
+const char* AsmLabels::stdLabel()
+{
+    return STD_LABEL;
+}
+
+int AsmLabels::getNum()
+{
+    return labelNum_;
+}

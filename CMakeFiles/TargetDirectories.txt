@@ -1,3 +1,0 @@
-/home/philipp/Desktop/Compiler/CMakeFiles/rebuild_cache.dir
-/home/philipp/Desktop/Compiler/CMakeFiles/edit_cache.dir
-/home/philipp/Desktop/Compiler/CMakeFiles/Compiler.dir

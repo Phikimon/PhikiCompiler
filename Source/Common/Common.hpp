@@ -1,16 +1,12 @@
 #ifndef COMMON_HPP_INCLUDED
 #define COMMON_HPP_INCLUDED
 
-#include <stdint.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <typeinfo>
-#include <limits.h>
-#include <math.h>
-#include <clocale>
+#include <cstdlib>
+
+#ifndef __cplusplus
+typedef enum { false, true } bool;
+#endif
+
 
 //What needs refactoring
 #define GovnoCode
@@ -18,108 +14,49 @@
 
 //Debug
 #undef NDEBUG
-#define STUPIDUSER
 
-#define _assert(cond) \
-{ \
-    if (!(cond)) \
-    { \
-        int* a = NULL; \
-        *a = 0; \
-    }; \
-    assert(cond); \
-}
+#ifdef __cplusplus
 
+#ifndef NDEBUG
 
-//Debug checks
+#define myThrow(a) { prln(); throw(a); }
 
-#ifdef STUPIDUSER
+#else //~NDEBUG
 
-#define throw(a) { prln(); throw(a); }
+#define myThrow(a) { throw(a); }
+//#define myThrow { throw; }
+
+#endif //~NDEBUG
+
+#endif //~__cplusplus
+
+#define SUPERCHECKS
+#ifdef  SUPERCHECKS
+
 #define prln() printf("\n FILE %s; LINE %i\n", __FILE__, __LINE__)
 #define prdel() printf("\n___________________________________________________________________\n")
 #define prhello() printf("\n\033[1m\033[31m\033[4m\033[5mI am here! Line №%i\033[0m\n", __LINE__);
 
- /*
-  Assert and print error message
- */
-#define assMes(cond, mes)                        \
- if (!(cond))                                    \
- {                                               \
-   assert(!mes);                                 \
- }
+#else //~SUPERCHECKS
 
- /*
-  Check for array overrun, or for validity of counter. 'belTo' stands for 'belongs to'
- */
-#define belTo(index, left, right, mes)           \
- if ( ( index < left ) || ( index >  right ) )   \
- {                                               \
-   assert(!mes);                                 \
- }
+#define prln()
 
-#define belToLeft(index, left, mes)              \
- if ( index < left )                             \
- {                                               \
-   assert(!mes);                                 \
- }
+#define prdel()
 
-#define belToRight(index, right, mes)            \
- if ( index > right )                            \
- {                                               \
-   assert(!mes);                                 \
- }
+#define prhello()
 
-#define belToEx(index, left, right, code)        \
- if ( ( index < left ) || ( index >  right ) )   \
- {                                               \
-   throw(code);                                  \
- }
-
-#define belToLeftEx(index, left, code)           \
- if ( index < left )                             \
- {                                               \
-   throw(code);                                  \
- }
-
-#define belToRightEx(index, right, code)         \
- if ( index > right )                            \
- {                                               \
-   throw(code);                                  \
- }
-
-#else
-
-#define assMes(cond, mes)
-
-#define belTo(index, left, right, mes)
-
-#define belToLeft(index, left, mes)
-
-#define belToRight(index, right, mes)
-
-#define belToLeftEx(index, left, code)
-
-#define belToRightEx(index, right, code)
-
-#endif
+#endif //~STUPIDUSER
 
 //Some constants
 
-#define MAX_LINE_LEN 256
-Govnocode //Some constants not needed in common.hpp
-#define START_FILE_SIZE 16
-#define ARGTYP_MAX_DIGITS 10
+enum { MAX_LINE_LEN = 256 };
 #define MACH_EPS 1e-10
 
 //Some error messages/status codes
 
-typedef unsigned char hashType;
-
-#define CNTR_INV "Error: Counter is invalid"
-
 enum ERRORS_T
 {
+    Govnocode // Make errors' values positive
     ERR_EMPTY    =   0, //< Nothing is printed
     ERR_NOERR    =  -1, //< Error: no such error exists :)
     ERR_STD      =  -2, //< Error: user, call the administrator
@@ -141,6 +78,8 @@ enum ERRORS_T
     ERR_QT        = -18,
 };
 
+typedef enum ERRORS_T ERRORS_T;
+
 extern const char* _ERR_ST[-ERR_QT];
 
 //Returns string that represents error
@@ -148,38 +87,76 @@ const char* ERR_ST(ERRORS_T ERR);
 
 //My collection of potions
 
-#define POISON_CHAR '\0'
-#define POISON_INT 0xDEADBEEF
+extern const char POISON_CHAR;
+extern const int  POISON_INT;
+extern const size_t POISON_SIZE_T;
+
+#ifdef __cplusplus
+#define POISON_DOUBLE (std::numeric_limits<double>::quiet_NaN())
+#else  //__cplusplus
+#define POISON_DOUBLE 0xDEADBEEFDEADBEEF
+#endif //__cplusplus
 
 //Useful defines
 
-#define free(a)   { free(a);   (a) = NULL; }
-
-#define fclose(a) { fclose(a); (a) = NULL; }
-
-#define FOPEN(a) \
-{ \
-    if (!(a)) \
-    { \
-        prln(); \
-        throw (ERR_OPFILE); \
-    } \
+#define printfTo(__command, ...)       \
+{                                      \
+   char __temporal[MAX_LINE_LEN] = ""; \
+   sprintf(__temporal, __VA_ARGS__);   \
+   __command(__temporal);              \
 }
 
-#define ALLOC(a) \
-if (!(a)) \
-{ \
-    prln(); \
-    throw(ERR_ALLOC); \
+//#define  DEBUGPRINTF(...) printf("\nDEBUG:" __VA_ARGS__)
+//#define DEBUGFPRINTF(...) fprintf(__VA_ARGS__)
+#define  DEBUGPRINTF(...)
+#define DEBUGFPRINTF(...)
+#define FREE(a)   { free(a);   (a) = NULL; }
+
+#define FCLOSE(a) { fclose(a); (a) = NULL; }
+
+#ifdef __cplusplus
+
+#define FOPEN(a)            \
+{                           \
+    if (!(a))               \
+    {                       \
+        prln();             \
+        myThrow(ERR_OPFILE); \
+    }                       \
 }
 
-#define checkSum(smth, verb) { assert(strlen(#smth) <= MAX_LINE_LEN); _checkSum(smth, verb, #smth); }
+#define ALLOC(a)      \
+if (!(a))             \
+{                     \
+    prln();           \
+    myThrow(ERR_ALLOC); \
+}
+
+#else //__cplusplus
+
+#define FOPEN(a)            \
+{                           \
+    if (!(a))               \
+    {                       \
+        prln();             \
+        myThrow(ERR_OPFILE); \
+    }                       \
+}
+
+#define ALLOC(a)      \
+if (!(a))             \
+{                     \
+    prln();           \
+    return ERR_ALLOC; \
+}
+
+#endif
 
 //Common functions
 
-unsigned myRandom(unsigned seed);
+size_t myRandom(int seed);
 
-unsigned genSeed();
+int genSeed();
 
 bool D_EQ(double a, double y);
 

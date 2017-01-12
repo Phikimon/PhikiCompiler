@@ -1,0 +1,55 @@
+digraph graf
+{
+    function_name [label="type = id\ldata = <function name>"];
+    new_function1 [label="type = new_function\ldata = function"];
+    new_function2 [label="type = new_function\ldata = function"];
+    new_function3 [label="type = new_function\ldata = function"];
+    arg1 [label="argument1"];
+    arg2 [label="argument2"];
+    var1 [label="variable 1"];
+    NULL4 [label="(nil)"];
+    var2 [label="variable 2"];
+    dot2 [label="."];
+    operator1 [label="operator"];
+    operator2 [label="operator"];
+    dot1 [label="."];
+    dot3 [label="."];
+    dot4 [label="."];
+    NULL1 [label="(nil)"];
+    NULL2 [label="(nil)"];
+    NULL3 [label="(nil)"];
+
+    NULL5 [label="(nil)"];
+    NULL6 [label="(nil)"];
+    NULL7 [label="(nil)"];
+    NULL8 [label="(nil)"];
+    NULL9 [label="(nil)"];
+    NULL10 [label="(nil)"];
+    function_name->NULL7;
+    function_name->NULL8;
+    dot4->NULL9;
+    dot4->NULL10;
+
+    dot1->new_function1;
+    new_function1->new_function2;
+    new_function1->function_name;
+    new_function2->dot2;
+    new_function2->new_function3;
+    new_function3->arg1;
+    arg1->arg2;
+    arg1->NULL1;
+    arg2->NULL2;
+    arg2->NULL3;
+    new_function3->var1;
+    var1->var2;
+    var1->NULL4;
+
+    var2->NULL5;
+    var2->NULL6;
+
+    dot2->operator1;
+    dot3->operator2;
+    dot2->dot3;
+    dot3->dot4;
+
+}

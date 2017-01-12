@@ -1,42 +1,43 @@
 #ifndef CHARBUFS_H_INCLUDED
 #define CHARBUFS_H_INCLUDED
 
+#include <cstdio>
 #include "Common/Common.hpp"
+
+enum { START_FILE_SIZE = 16 };
 
 struct myString
 {
     char *str;
-    
-    long unsigned len;
+
+    size_t len;
 };
 
 struct charBuf_t
 {
-    unsigned checkSum;
-    unsigned leftCanary;
-    unsigned seed[2];
-    
+    size_t checkSum;
+    size_t leftCanary;
+    size_t seed[2];
+
     char* buf;
     myString *strings;
 
-    long unsigned sizeFilled;
-    long unsigned Size;
-    long unsigned strQuant;
+    size_t sizeFilled;
+    size_t Size;
+    size_t strQuant;
     bool strValid;
-    
-    unsigned rightCanary;
+
+    size_t rightCanary;
 };
 
 /*int strDiv(textBuffer *txt);
 int streamToBuf(textBuffer *txt, FILE *stream);
 void bufdtor(textBuffer *txt);
 int bufToStream(textBuffer *txt, FILE *stream);
-int bufToStream(char **text, unsigned int Size, FILE *stream);
+int bufToStream(char **text, size_t Size, FILE *stream);
 bool bufcmp(textBuffer* tbuf1, textBuffer* tbuf2);
 bool _bufOk(textBuffer *txt, bool verbose = false, const char bufName[MAX_LINE_LEN] = "name");
-
-void _prString(char *str, unsigned int len, const char strName[MAX_LINE_LEN]);
-
+void _prString(char *str, size_t len, const char strName[MAX_LINE_LEN]);
 int reallocBuf(textBuffer *txt);*/
 
 
@@ -48,7 +49,7 @@ bool bufcmp(charBuf_t* tbuf1, charBuf_t* tbuf2);
 /**
  Calculates the checkSum
  */
-unsigned _checkSum(charBuf_t* stack, bool verbose = false, const char bufName[MAX_LINE_LEN] = "name");
+size_t _checkSum(charBuf_t* stack, bool verbose = false, const char bufName[MAX_LINE_LEN] = "name");
 
 /**
  Divides buffer to strings
@@ -73,10 +74,19 @@ void strcpyBuf(charBuf_t *dest, char *src);
 int putcBuf(charBuf_t* txt, char c);
 
 /**
+    Puts double in the buffer
+ */
+int putdBuf(charBuf_t* txt, double d);
+
+/**
     Concatenates string and buffer
 */
-int strcatBuf(charBuf_t *dest, const char *src, const unsigned int src_len);
+int strcatBuf(charBuf_t *dest, const char *src, const size_t src_len);
 
+/**
+    Concatenates string and buffer
+*/
+int strcatBuf(charBuf_t *dest, const char *src);
 
 /**
  Constructor for buffers. If no buftxt is passed, allocate 'START_FILE_SIZE' bytes for the string
@@ -104,7 +114,7 @@ int bufToStream(charBuf_t *txt, FILE *stream);
 /**
   Write array of strings to stream
  */
-int bufToStream(char **text, unsigned int Size, FILE *stream);
+int bufToStream(char **text, size_t Size, FILE *stream);
 
 
 /**
@@ -117,10 +127,17 @@ bool _bufOk(charBuf_t *txt, bool verbose = false, const char bufName[MAX_LINE_LE
 /**
   Print string
  */
-void _prString(char *str, unsigned int len, const char strName[MAX_LINE_LEN]);
-#define prString(str, len)  {                          \
-                             prln();                   \
-                             _prString(str, len, #str);\
-                            }
+void _prString(const char *str, size_t len, const char strName[MAX_LINE_LEN]);
+#define prString(str, len)     \
+{                              \
+    prln();                    \
+    _prString(str, len, #str); \
+}
+
+#define prStringLen(str)               \
+{                                      \
+    prln();                            \
+    _prString(str, strlen(str), #str); \
+}
 
 #endif

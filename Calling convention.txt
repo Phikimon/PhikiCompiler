@@ -1,0 +1,39 @@
+Every function has its' namesQt - int value
+that stores (argQt + varQt) sum, where
+argQt is number of arguments that function
+passes and varQt stores number of local
+variables that function uses.
+===========================================
+So what CALLER does is:
+-------------------------------------------
+Prologue:
+1. Push first (namesQt + 3)* registers in
+stack.
+2. Fill argQt registers with arguments'
+values, if they don't store them already.
+-------------------------------------------
+Epilogue:
+1. Pop first (namesQt + 3)* registers
+2. Swap %0 and top of the stack, so that
+%0 stays unchanged, and return value is
+stored in stack
+===========================================
+(namesQt + 3)*
+%0 is used as a register for return value,
+so if has to be stored even if function
+has namesQt = 0, because every function
+is considered as if it returned some value.
+Also %<namesQt + 1> and %<namesQt + 2>
+registers' are used for calculations
+===========================================
+What CALLEE does is:
+It doesn't use stack at all, it just uses
+a) %1..%<argQt> registers' values as an
+arguments values;
+b) %<argQt + 1>..%<namesQt> registers'
+as a storage for local variables;
+c) %<namesQt + 1> and %<namesQt + 2>
+registers' for calculations
+d) puts return value in %0. Also %0 can
+be used for temporal calculations
+===========================================

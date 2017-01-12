@@ -1,71 +1,17 @@
-#ifndef STACK_HPP_INCLUDED
-#define STACK_HPP_INCLUDED
+#ifndef CPUSTACK_HPP_INCLUDED
+#define CPUSTACK_HPP_INCLUDED
+#include <stack>
+#include <vector>
 
-#include "Common/Common.hpp"
+typedef double registers_t;
+typedef registers_t stack_t;
 
-#define INIT_STACK_SIZE 32
-
-enum STACKERRORS_T
+class CPUStack : public std::stack< stack_t, std::vector<stack_t> >
 {
-    STACKERR_EMPTY = 0,         //< No error occured
-    STACKERR_NULL_SIZE = -1,    //< Stack size can't be equal to zero
-    STACKERR_NOPOP = -2,        //< Nothing to pop
+    public:
+    using std::stack< stack_t, std::vector<stack_t> >::c;
+    void dump();
+    stack_t getRandAccess(int offset);
 };
-
-typedef double stackData_t;
-
-struct stack_t
-{
-    unsigned checkSum;
-    unsigned leftCanary;
-
-    int      count;
-    int      size;
-    unsigned seed[2];
-    stackData_t* data;
-    
-    unsigned rightCanary;
-};
-
-/**
- Constructor for 'stack' structure
- */
-int stackctor(stack_t* stack, int Size);
-
-/**
- Destructor for 'stack' structure
- */
-int stackdtor(stack_t* stack);
-
-/**
- Calculates the checksum
- */
-unsigned _checkSum(stack_t* stack, bool verbose = false, const char stackName[MAX_LINE_LEN] = "name");
-
-/**
- Realloc memory for stack data
- */
-int reallocStack(stack_t* stack);
-
-/**
- Stack verificator and dump
- */
-bool _stackOk(stack_t* stack, bool verbose = false, const char stackName[MAX_LINE_LEN] = "name");
-#define stackOk(stk, verb) { assert(strlen(#stk) <= MAX_LINE_LEN); _stackOk(stk, verb, #stk); }
-
-/**
- Push value in stack
- */
-int stackPush(stack_t* stack, stackData_t value, bool verbose = false);
-
-/**
- Pop value from stack
- */
-stackData_t stackPop(stack_t* stack, bool verbose = false);
-
-/**
- Unit tests for stack
- */
-void ut_stack(bool verbose = false);
 
 #endif

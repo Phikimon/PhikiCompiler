@@ -1,10 +1,10 @@
 //UT_COMP(testNum0, testName0)
 
 #define quot(a) ( #a )
-#define _UT_COMP(testNum, testName, fileName) DEF_UT_COMP(testNum, #testName, #fileName) 
-#define UT_COMP(testNum, testName) _UT_COMP(testNum, testName, testName.holy)
+#define _UT_COMP(testNum, testName, fileName) DEF_UT_COMP(testNum, #testName, #fileName)
+#define UT_COMP(testNum, testName) _UT_COMP(testNum, testName, testName.naming)
 
-UT_COMP(1, EmptyMain) 
+UT_COMP(1, EmptyMain)
 UT_COMP(2, Zhest)
 UT_COMP(3, Square_Lite)
 UT_COMP(4, MultipleFunctions)
